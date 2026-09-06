@@ -96,18 +96,21 @@ configurations {
 dependencies {
     implementation "net.neoforged:neoforge:${neoforge_version}"
 
-    // Create (NeoForge) - use the slim artifact and disable transitive deps,
-    // because Create's pom declares many runtime-only (or optional) companions
-    // (FTB Library, JourneyMap, Architectury, ...) that are not needed to compile
-    // or run this addon on their own.
+    // Create (NeoForge, slim). We keep most of Create's transitive deps (notably its
+    // bundled libraries like catnip), but exclude the runtime-only companion mods whose
+    // artifacts we don't want pulled in (they were previously unresolvable at datagen).
     implementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") {
-        transitive = false
+        exclude group: "dev.ftb.mods"
+        exclude group: "maven.modrinth"
+        exclude group: "dev.architectury"
     }
 
     // Registrate (Create's registration library, standalone on NeoForge)
     implementation "com.tterrag.registrate:Registrate:${registrate_version}"
 
-    // Ponder (Create's tutorial/demo system, standalone on NeoForge)
+    // Ponder is a hard dependency of Create's kinetic block entities (VirtualBlockEntity,
+    // catnip utilities). We keep the library but deliberately do NOT register any Ponder
+    // scenes/stories for our own blocks, so the W "behind the scenes" tutorials are gone.
     implementation "net.createmod.ponder:Ponder-NeoForge-${minecraft_version}:${ponder_version}"
 
     // Flywheel (Create's rendering engine) - compile against the API, bundle the full lib at runtime

@@ -1,13 +1,10 @@
 package com.kotakotik.creategears.regitration;
 
 import com.kotakotik.creategears.Gears;
-import com.kotakotik.creategears.blocks.FullyEncasedBeltBlock;
 import com.kotakotik.creategears.blocks.GearBlock;
 import com.kotakotik.creategears.blocks.HalfShaftGearBlock;
-import com.kotakotik.creategears.blocks.SimpleGearshiftBlock;
 import com.kotakotik.creategears.util.Registration;
 import com.simibubi.create.AllBlocks;
-import com.simibubi.create.content.kinetics.chainDrive.ChainDriveGenerator;
 import com.simibubi.create.content.kinetics.simpleRelays.BracketedKineticBlockModel;
 import com.simibubi.create.content.kinetics.simpleRelays.CogwheelBlockItem;
 import com.simibubi.create.foundation.data.AssetLookup;
@@ -34,8 +31,6 @@ public class GearsBlocks extends Registration {
     public static BlockEntry<GearBlock> LARGE_GEAR;
     public static BlockEntry<HalfShaftGearBlock> HALF_SHAFT_GEAR;
     public static BlockEntry<HalfShaftGearBlock> LARGE_HALF_SHAFT_GEAR;
-    public static BlockEntry<FullyEncasedBeltBlock> FULLY_ENCASED_CHAIN_DRIVE;
-    public static BlockEntry<SimpleGearshiftBlock> SIMPLE_GEARSHIFT;
 
     public GearsBlocks(CreateRegistrate r) {
         super(r);
@@ -48,7 +43,7 @@ public class GearsBlocks extends Registration {
                 .properties(p -> p.noOcclusion())
                 .transform(axeOrPickaxe())
                 .transform(GearsStressProvider.fixed(0.0, 0.0))
-                .blockstate(($, $$) -> {})
+                .blockstate(BlockStateGen.axisBlockProvider(false))
                 .onRegister(CreateRegistrate.blockModel(() -> BracketedKineticBlockModel::new))
                 .item(CogwheelBlockItem::new)
                 .model((c, p) -> {})
@@ -134,42 +129,6 @@ public class GearsBlocks extends Registration {
                             .define('a', Blocks.ANDESITE)
                             .unlockedBy("has_large_cogwheels", prov.has(AllBlocks.LARGE_COGWHEEL.get()))
                             .save(prov);
-                })
-                .register();
-
-        FULLY_ENCASED_CHAIN_DRIVE = r.block("fully_encased_chain_drive", FullyEncasedBeltBlock::new)
-                .initialProperties(SharedProperties::stone)
-                .properties(p -> p.noOcclusion())
-                .transform(axeOrPickaxe())
-                .transform(GearsStressProvider.fixed(4.0, 0.0))
-                .blockstate((c, p) -> new ChainDriveGenerator((state, suffix) -> p.models()
-                        .getExistingFile(p.modLoc("block/" + c.getName() + "/" + suffix))).generate(c, p))
-                .item()
-                .model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/fully_encased_chain_drive/item")))
-                .build()
-                .register();
-
-        SIMPLE_GEARSHIFT = r.block("simple_gearshift", SimpleGearshiftBlock::new)
-                .initialProperties(SharedProperties::stone)
-                .properties(p -> p.noOcclusion())
-                .transform(axeOrPickaxe())
-                .transform(GearsStressProvider.fixed(2.0, 0.0))
-                .blockstate((c, p) -> BlockStateGen.axisBlock(c, p, (b) -> p.models()
-                        .getExistingFile(p.modLoc("block/simple_gearshift/block"))))
-                .item()
-                .model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/simple_gearshift/item")))
-                .build()
-                .recipe((ctx, prov) -> {
-                    ctx.get().recipe(prov)
-                            .pattern("w")
-                            .pattern("c")
-                            .pattern("w")
-                            .unlockedBy("has_cogwheel", prov.has(AllBlocks.COGWHEEL.get()))
-                            .save(prov, modLoc("simple_gearshift_vertical"));
-                    ctx.get().recipe(prov)
-                            .pattern("wcw")
-                            .unlockedBy("has_cogwheel", prov.has(AllBlocks.COGWHEEL.get()))
-                            .save(prov, modLoc("simple_gearshift_horizontal"));
                 })
                 .register();
     }

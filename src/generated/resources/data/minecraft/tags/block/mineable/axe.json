@@ -3,8 +3,6 @@
     "creategears:gear",
     "creategears:large_gear",
     "creategears:half_shaft_gear",
-    "creategears:large_half_shaft_gear",
-    "creategears:fully_encased_chain_drive",
-    "creategears:simple_gearshift"
+    "creategears:large_half_shaft_gear"
   ]
 }

@@ -1,15 +1,15 @@
 {
   "variants": {
     "axis=x": {
-      "model": "create:block/cogwheel_shaftless",
+      "model": "creategears:block/gear",
       "x": 90,
       "y": 90
     },
     "axis=y": {
-      "model": "create:block/cogwheel_shaftless"
+      "model": "creategears:block/gear"
     },
     "axis=z": {
-      "model": "create:block/cogwheel_shaftless",
+      "model": "creategears:block/gear",
       "x": 90,
       "y": 180
     }
