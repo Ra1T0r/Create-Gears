@@ -3,21 +3,18 @@ package com.kotakotik.creategears.regitration;
 import com.kotakotik.creategears.Gears;
 import com.kotakotik.creategears.tiles.GearTile;
 import com.kotakotik.creategears.util.Registration;
-import com.simibubi.create.content.contraptions.base.KineticTileEntityRenderer;
-import com.simibubi.create.content.contraptions.base.SingleRotatingInstance;
-import com.simibubi.create.content.contraptions.relays.encased.EncasedShaftTileEntity;
-import com.simibubi.create.content.contraptions.relays.encased.SplitShaftInstance;
-import com.simibubi.create.content.contraptions.relays.encased.SplitShaftRenderer;
-import com.simibubi.create.content.contraptions.relays.gearbox.GearshiftTileEntity;
+import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
+import com.simibubi.create.content.kinetics.base.KineticBlockEntityRenderer;
+import com.simibubi.create.content.kinetics.transmission.GearshiftBlockEntity;
+import com.simibubi.create.content.kinetics.transmission.SplitShaftRenderer;
+import com.simibubi.create.content.kinetics.transmission.SplitShaftVisual;
 import com.simibubi.create.foundation.data.CreateRegistrate;
-import com.simibubi.create.repack.registrate.util.entry.TileEntityEntry;
-import net.minecraftforge.fml.common.Mod;
+import com.tterrag.registrate.util.entry.BlockEntityEntry;
 
-@Mod.EventBusSubscriber(modid= Gears.modid, bus=Mod.EventBusSubscriber.Bus.FORGE)
 public class GearsTiles extends Registration {
-    public static TileEntityEntry<GearTile> GEAR;
-    public static TileEntityEntry<EncasedShaftTileEntity> FULLY_ENCASED_BELT;
-    public static TileEntityEntry<GearshiftTileEntity> SIMPLE_GEARSHIFT;
+    public static BlockEntityEntry<GearTile> GEAR;
+    public static BlockEntityEntry<KineticBlockEntity> FULLY_ENCASED_BELT;
+    public static BlockEntityEntry<GearshiftBlockEntity> SIMPLE_GEARSHIFT;
 
     public GearsTiles(CreateRegistrate r) {
         super(r);
@@ -25,18 +22,17 @@ public class GearsTiles extends Registration {
 
     @Override
     public void register() {
-        GEAR = r.tileEntity("gear", GearTile::new)
-                .instance(() -> SingleRotatingInstance::new)
+        GEAR = r.blockEntity("gear", GearTile::new)
+                .renderer(() -> KineticBlockEntityRenderer::new)
                 .validBlocks(GearsBlocks.GEAR, GearsBlocks.LARGE_GEAR, GearsBlocks.HALF_SHAFT_GEAR, GearsBlocks.LARGE_HALF_SHAFT_GEAR)
-                .renderer(() -> KineticTileEntityRenderer::new)
                 .register();
 
-        FULLY_ENCASED_BELT = r.tileEntity("fully_encased_shaft", EncasedShaftTileEntity::new)
+        FULLY_ENCASED_BELT = r.blockEntity("fully_encased_shaft", KineticBlockEntity::new)
                 .validBlock(GearsBlocks.FULLY_ENCASED_CHAIN_DRIVE)
                 .register();
 
-        SIMPLE_GEARSHIFT = r.tileEntity("simple_gearshift", GearshiftTileEntity::new)
-                .instance(() -> SplitShaftInstance::new)
+        SIMPLE_GEARSHIFT = r.blockEntity("simple_gearshift", GearshiftBlockEntity::new)
+                .visual(() -> SplitShaftVisual::new)
                 .validBlock(GearsBlocks.SIMPLE_GEARSHIFT)
                 .renderer(() -> SplitShaftRenderer::new)
                 .register();

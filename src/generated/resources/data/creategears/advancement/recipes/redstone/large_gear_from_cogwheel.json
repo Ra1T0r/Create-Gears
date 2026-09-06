@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_cogwheel": {
+      "conditions": {
+        "items": [
+          {
+            "items": "create:large_cogwheel"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "creategears:large_gear_from_cogwheel"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_cogwheel"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "creategears:large_gear_from_cogwheel"
+    ]
+  }
+}

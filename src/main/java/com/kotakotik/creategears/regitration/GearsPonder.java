@@ -1,29 +1,34 @@
 package com.kotakotik.creategears.regitration;
 
-import com.simibubi.create.Create;
-import com.simibubi.create.foundation.ponder.PonderRegistrationHelper;
-import com.simibubi.create.foundation.ponder.PonderRegistry;
-import com.simibubi.create.foundation.ponder.content.ChainDriveScenes;
-import com.simibubi.create.foundation.ponder.content.KineticsScenes;
-import com.simibubi.create.foundation.ponder.content.PonderTag;
+import com.kotakotik.creategears.Gears;
+import com.simibubi.create.infrastructure.ponder.AllCreatePonderTags;
+import com.simibubi.create.infrastructure.ponder.scenes.ChainDriveScenes;
+import com.simibubi.create.infrastructure.ponder.scenes.KineticsScenes;
+import com.tterrag.registrate.util.entry.ItemProviderEntry;
+import com.tterrag.registrate.util.entry.RegistryEntry;
+import net.createmod.ponder.api.registration.PonderPlugin;
+import net.createmod.ponder.api.registration.PonderSceneRegistrationHelper;
+import net.minecraft.resources.ResourceLocation;
 
-public class GearsPonder {
-    public static void register() {
-        PonderRegistrationHelper h = new PonderRegistrationHelper(Create.ID);
+public class GearsPonder implements PonderPlugin {
+
+    @Override
+    public String getModId() {
+        return Gears.MODID;
+    }
+
+    @Override
+    public void registerScenes(PonderSceneRegistrationHelper<ResourceLocation> helper) {
+        PonderSceneRegistrationHelper<ItemProviderEntry<?, ?>> h = helper.withKeyFunction(RegistryEntry::getId);
 
         h.forComponents(GearsBlocks.GEAR, GearsBlocks.LARGE_GEAR)
-                .addStoryBoard("cog/small", KineticsScenes::cogAsRelay)
-                .addStoryBoard("cog/large", KineticsScenes::largeCogAsRelay);
+                .addStoryBoard("cog/small", KineticsScenes::cogAsRelay, AllCreatePonderTags.KINETIC_RELAYS)
+                .addStoryBoard("cog/large", KineticsScenes::largeCogAsRelay, AllCreatePonderTags.KINETIC_RELAYS);
+
         h.forComponents(GearsBlocks.FULLY_ENCASED_CHAIN_DRIVE)
-                .addStoryBoard("chain_drive/relay", ChainDriveScenes::chainDriveAsRelay);
+                .addStoryBoard("chain_drive/relay", ChainDriveScenes::chainDriveAsRelay, AllCreatePonderTags.KINETIC_RELAYS);
 
         h.forComponents(GearsBlocks.SIMPLE_GEARSHIFT)
-                .addStoryBoard("gearshift", KineticsScenes::gearshift);
-
-        PonderRegistry.TAGS.forTag(PonderTag.KINETIC_RELAYS)
-                .add(GearsBlocks.GEAR)
-                .add(GearsBlocks.LARGE_GEAR)
-                .add(GearsBlocks.FULLY_ENCASED_CHAIN_DRIVE)
-                .add(GearsBlocks.SIMPLE_GEARSHIFT);
+                .addStoryBoard("gearshift", KineticsScenes::gearshift, AllCreatePonderTags.KINETIC_RELAYS);
     }
 }

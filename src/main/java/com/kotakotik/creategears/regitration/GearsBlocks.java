@@ -1,36 +1,40 @@
 package com.kotakotik.creategears.regitration;
 
+import com.kotakotik.creategears.Gears;
 import com.kotakotik.creategears.blocks.FullyEncasedBeltBlock;
 import com.kotakotik.creategears.blocks.GearBlock;
 import com.kotakotik.creategears.blocks.HalfShaftGearBlock;
 import com.kotakotik.creategears.blocks.SimpleGearshiftBlock;
 import com.kotakotik.creategears.util.Registration;
 import com.simibubi.create.AllBlocks;
-import com.simibubi.create.content.contraptions.relays.elementary.BracketedKineticBlockModel;
-import com.simibubi.create.content.contraptions.relays.elementary.CogwheelBlockItem;
-import com.simibubi.create.content.contraptions.relays.encased.EncasedBeltGenerator;
+import com.simibubi.create.content.kinetics.chainDrive.ChainDriveGenerator;
+import com.simibubi.create.content.kinetics.simpleRelays.BracketedKineticBlockModel;
+import com.simibubi.create.content.kinetics.simpleRelays.CogwheelBlockItem;
 import com.simibubi.create.foundation.data.AssetLookup;
 import com.simibubi.create.foundation.data.BlockStateGen;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.SharedProperties;
-import com.simibubi.create.repack.registrate.providers.DataGenContext;
-import com.simibubi.create.repack.registrate.providers.RegistrateBlockstateProvider;
-import com.simibubi.create.repack.registrate.util.entry.BlockEntry;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.data.ShapedRecipeBuilder;
-import net.minecraft.state.properties.BlockStateProperties;
+import com.tterrag.registrate.providers.DataGenContext;
+import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+import com.tterrag.registrate.util.entry.BlockEntry;
+import net.minecraft.core.Direction;
+import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.Direction;
-import net.minecraftforge.client.model.generators.ConfiguredModel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
+
+import static com.simibubi.create.foundation.data.TagGen.axeOrPickaxe;
 
 public class GearsBlocks extends Registration {
     public static BlockEntry<GearBlock> GEAR;
     public static BlockEntry<GearBlock> LARGE_GEAR;
     public static BlockEntry<HalfShaftGearBlock> HALF_SHAFT_GEAR;
     public static BlockEntry<HalfShaftGearBlock> LARGE_HALF_SHAFT_GEAR;
-    public static BlockEntry<FullyEncasedBeltBlock> FULLY_ENCASED_CHAIN_DRIVE; // oof thats a loong name lmao
+    public static BlockEntry<FullyEncasedBeltBlock> FULLY_ENCASED_CHAIN_DRIVE;
     public static BlockEntry<SimpleGearshiftBlock> SIMPLE_GEARSHIFT;
 
     public GearsBlocks(CreateRegistrate r) {
@@ -40,16 +44,22 @@ public class GearsBlocks extends Registration {
     @Override
     public void register() {
         GEAR = r.block("gear", (p) -> new GearBlock(false, p))
-                .item(CogwheelBlockItem::new).model((c, p) -> {}).build()
+                .initialProperties(SharedProperties::stone)
+                .properties(p -> p.noOcclusion())
+                .transform(axeOrPickaxe())
+                .transform(GearsStressProvider.fixed(0.0, 0.0))
                 .blockstate(($, $$) -> {})
                 .onRegister(CreateRegistrate.blockModel(() -> BracketedKineticBlockModel::new))
+                .item(CogwheelBlockItem::new)
+                .model((c, p) -> {})
+                .build()
                 .recipe((ctx, prov) -> {
-                    ShapedRecipeBuilder.shaped(ctx.get(), 8)
+                    ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 8)
                             .pattern("www")
                             .pattern("w w")
                             .pattern("www")
                             .define('w', ItemTags.BUTTONS)
-                            .unlockedBy("has_cogwheels", prov.hasItem(AllBlocks.COGWHEEL.get()))
+                            .unlockedBy("has_cogwheels", prov.has(AllBlocks.COGWHEEL.get()))
                             .save(prov);
 
                     ctx.get().toCogwheelRecipe(AllBlocks.COGWHEEL.get(), prov);
@@ -58,17 +68,23 @@ public class GearsBlocks extends Registration {
                 .register();
 
         LARGE_GEAR = r.block("large_gear", (p) -> new GearBlock(true, p))
-                .item(CogwheelBlockItem::new).build()
+                .initialProperties(SharedProperties::stone)
+                .properties(p -> p.noOcclusion())
+                .transform(axeOrPickaxe())
+                .transform(GearsStressProvider.fixed(0.0, 0.0))
                 .blockstate(BlockStateGen.axisBlockProvider(false))
                 .onRegister(CreateRegistrate.blockModel(() -> BracketedKineticBlockModel::new))
+                .item(CogwheelBlockItem::new)
+                .model((c, p) -> {})
+                .build()
                 .recipe((ctx, prov) -> {
-                    ShapedRecipeBuilder.shaped(ctx.get(), 2)
+                    ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 2)
                             .pattern("bwb")
                             .pattern("w w")
                             .pattern("bwb")
                             .define('w', ItemTags.PLANKS)
                             .define('b', ItemTags.BUTTONS)
-                            .unlockedBy("has_large_cogwheels", prov.hasItem(AllBlocks.LARGE_COGWHEEL.get()))
+                            .unlockedBy("has_large_cogwheels", prov.has(AllBlocks.LARGE_COGWHEEL.get()))
                             .save(prov);
 
                     ctx.get().toCogwheelRecipe(AllBlocks.LARGE_COGWHEEL.get(), prov);
@@ -77,82 +93,89 @@ public class GearsBlocks extends Registration {
                 .register();
 
         HALF_SHAFT_GEAR = r.block("half_shaft_gear", (p) -> new HalfShaftGearBlock(false, p))
-                .item(CogwheelBlockItem::new).build()
+                .initialProperties(SharedProperties::stone)
+                .properties(p -> p.noOcclusion())
+                .transform(axeOrPickaxe())
+                .transform(GearsStressProvider.fixed(0.0, 0.0))
                 .blockstate(GearsBlocks::halfShaftGearState)
                 .onRegister(CreateRegistrate.blockModel(() -> BracketedKineticBlockModel::new))
+                .item(CogwheelBlockItem::new)
+                .model((c, p) -> {})
+                .build()
                 .recipe((ctx, prov) -> {
-                    ShapedRecipeBuilder.shaped(ctx.get(), 8)
+                    ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 8)
                             .pattern("www")
                             .pattern("waw")
                             .pattern("www")
                             .define('w', ItemTags.BUTTONS)
                             .define('a', Blocks.ANDESITE)
-                            .unlockedBy("has_cogwheels", prov.hasItem(AllBlocks.COGWHEEL.get()))
+                            .unlockedBy("has_cogwheels", prov.has(AllBlocks.COGWHEEL.get()))
                             .save(prov);
                 })
                 .register();
 
         LARGE_HALF_SHAFT_GEAR = r.block("large_half_shaft_gear", (p) -> new HalfShaftGearBlock(true, p))
-                .item(CogwheelBlockItem::new).build()
+                .initialProperties(SharedProperties::stone)
+                .properties(p -> p.noOcclusion())
+                .transform(axeOrPickaxe())
+                .transform(GearsStressProvider.fixed(0.0, 0.0))
                 .blockstate(GearsBlocks::halfShaftGearState)
                 .onRegister(CreateRegistrate.blockModel(() -> BracketedKineticBlockModel::new))
+                .item(CogwheelBlockItem::new)
+                .model((c, p) -> {})
+                .build()
                 .recipe((ctx, prov) -> {
-                    ShapedRecipeBuilder.shaped(ctx.get(), 2)
+                    ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 2)
                             .pattern("bwb")
                             .pattern("waw")
                             .pattern("bwb")
                             .define('w', ItemTags.PLANKS)
                             .define('b', ItemTags.BUTTONS)
                             .define('a', Blocks.ANDESITE)
-                            .unlockedBy("has_large_cogwheels", prov.hasItem(AllBlocks.LARGE_COGWHEEL.get()))
+                            .unlockedBy("has_large_cogwheels", prov.has(AllBlocks.LARGE_COGWHEEL.get()))
                             .save(prov);
                 })
                 .register();
 
         FULLY_ENCASED_CHAIN_DRIVE = r.block("fully_encased_chain_drive", FullyEncasedBeltBlock::new)
-                .transform(GearsStressProvider.registerImpactCopying(AllBlocks.ENCASED_CHAIN_DRIVE))
-                .item().model((ctx, prov) -> prov.blockItem(FULLY_ENCASED_CHAIN_DRIVE, "/item")).build()
-                .blockstate((c, p) ->  // i hope i never have to read this mess
-                        (new EncasedBeltGenerator((state, suffix) ->
-                                p.models().getExistingFile(p.modLoc("block/" + c.getName() + "/" + c.get().getSuffix(suffix)
-                                )))).generate(c, p))
-                .recipe((ctx, prov) -> {
-                    ctx.get().fullyEncasedChainDriveRecipe(
-                            ctx.get().fullyEncasedChainDriveRecipe(prov)
-                                    .pattern("s")
-                                    .pattern("c")
-                                    .pattern("s"),
-                            prov, "vertical");
-
-                    ctx.get().fullyEncasedChainDriveRecipe(
-                            ctx.get().fullyEncasedChainDriveRecipe(prov)
-                                    .pattern("scs"),
-                            prov, "horizontal"
-                    );
-                })
+                .initialProperties(SharedProperties::stone)
+                .properties(p -> p.noOcclusion())
+                .transform(axeOrPickaxe())
+                .transform(GearsStressProvider.fixed(4.0, 0.0))
+                .blockstate((c, p) -> new ChainDriveGenerator((state, suffix) -> p.models()
+                        .getExistingFile(p.modLoc("block/" + c.getName() + "/" + suffix))).generate(c, p))
+                .item()
+                .model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/fully_encased_chain_drive/item")))
+                .build()
                 .register();
 
         SIMPLE_GEARSHIFT = r.block("simple_gearshift", SimpleGearshiftBlock::new)
                 .initialProperties(SharedProperties::stone)
-                .properties(AbstractBlock.Properties::noOcclusion)
-                .transform(GearsStressProvider.registerImpactCopying(AllBlocks.GEARSHIFT))
-                .item().model((ctx, prov) -> prov.blockItem(SIMPLE_GEARSHIFT, "/item")).build()
-                .blockstate((c, p) -> BlockStateGen.axisBlock(c, p, (b) -> p.models().getExistingFile(p.modLoc("block/simple_gearshift/block"))))
+                .properties(p -> p.noOcclusion())
+                .transform(axeOrPickaxe())
+                .transform(GearsStressProvider.fixed(2.0, 0.0))
+                .blockstate((c, p) -> BlockStateGen.axisBlock(c, p, (b) -> p.models()
+                        .getExistingFile(p.modLoc("block/simple_gearshift/block"))))
+                .item()
+                .model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/simple_gearshift/item")))
+                .build()
                 .recipe((ctx, prov) -> {
-                    ctx.get().recipe(
-                            ctx.get().recipe(prov)
-                                    .pattern("w")
-                                    .pattern("c")
-                                    .pattern("w"),
-                            prov, "vertical");
-
-                    ctx.get().recipe(
-                            ctx.get().recipe(prov)
-                                    .pattern("wcw"),
-                            prov, "horizontal"
-                    );
+                    ctx.get().recipe(prov)
+                            .pattern("w")
+                            .pattern("c")
+                            .pattern("w")
+                            .unlockedBy("has_cogwheel", prov.has(AllBlocks.COGWHEEL.get()))
+                            .save(prov, modLoc("simple_gearshift_vertical"));
+                    ctx.get().recipe(prov)
+                            .pattern("wcw")
+                            .unlockedBy("has_cogwheel", prov.has(AllBlocks.COGWHEEL.get()))
+                            .save(prov, modLoc("simple_gearshift_horizontal"));
                 })
                 .register();
+    }
+
+    private static ResourceLocation modLoc(String path) {
+        return ResourceLocation.fromNamespaceAndPath(Gears.MODID, path);
     }
 
     public static void halfShaftGearState(DataGenContext<Block, HalfShaftGearBlock> ctx, RegistrateBlockstateProvider prov) {

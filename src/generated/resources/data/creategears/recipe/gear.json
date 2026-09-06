@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "w": {
+      "tag": "minecraft:buttons"
+    }
+  },
+  "pattern": [
+    "www",
+    "w w",
+    "www"
+  ],
+  "result": {
+    "count": 8,
+    "id": "creategears:gear"
+  }
+}

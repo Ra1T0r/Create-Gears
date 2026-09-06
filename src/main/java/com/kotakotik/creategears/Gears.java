@@ -2,57 +2,60 @@ package com.kotakotik.creategears;
 
 import com.kotakotik.creategears.regitration.GearsBlocks;
 import com.kotakotik.creategears.regitration.GearsPonder;
-import com.kotakotik.creategears.regitration.GearsStressProvider;
 import com.kotakotik.creategears.regitration.GearsTiles;
-import com.simibubi.create.foundation.block.BlockStressValues;
 import com.simibubi.create.foundation.data.CreateRegistrate;
-import com.simibubi.create.repack.registrate.util.OneTimeEventReceiver;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.createmod.ponder.foundation.PonderIndex;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-// The value here should match an entry in the META-INF/mods.toml file
-@Mod(Gears.modid)
+@Mod(Gears.MODID)
 public class Gears {
 
-    // Directly reference a log4j logger.
-    public static final Logger LOGGER = LogManager.getLogger();
+    public static final String MODID = "creategears";
+    public static final Logger LOGGER = LoggerFactory.getLogger("Create Gears");
 
-    public static final String modid = "creategears";
-    public static IEventBus MOD_EVENT_BUS;
+    public static final CreateRegistrate REGISTRATE = CreateRegistrate.create(MODID);
 
-    public final CreateRegistrate REGISTRATE = CreateRegistrate.lazy(modid).get();
+    public static final ResourceKey<CreativeModeTab> TAB_KEY =
+            ResourceKey.create(Registries.CREATIVE_MODE_TAB, ResourceLocation.fromNamespaceAndPath(MODID, "main"));
 
-    public static ItemGroup itemGroup = new ItemGroup(modid) {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(GearsBlocks.GEAR.get());
-        }
-    };
+    private static final DeferredRegister<CreativeModeTab> TAB_REGISTER =
+            DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
-    public Gears() {
-        BlockStressValues.registerProvider(modid, new GearsStressProvider());
+    private static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB =
+            TAB_REGISTER.register("main", () -> CreativeModeTab.builder()
+                    .title(Component.translatable("itemGroup.creategears"))
+                    .icon(() -> new ItemStack(GearsBlocks.GEAR.get()))
+                    .build());
 
-        // events
-        MOD_EVENT_BUS = FMLJavaModLoadingContext.get().getModEventBus();
+    public Gears(IEventBus modBus, ModContainer container) {
+        // Registrate must be wired to the mod event bus before any registration happens.
+        TAB_REGISTER.register(modBus);
+        REGISTRATE.registerEventListeners(modBus);
 
-        // registration
+        // All items registered by Registrate go into our custom tab.
+        REGISTRATE.setCreativeTab(TAB);
+        REGISTRATE.addRawLang("itemGroup." + MODID, "Create Gears");
 
-//        GearsConfig.register();
-//        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, GearsConfig.CONFIG, "gears.toml");
-
-        REGISTRATE.itemGroup(() -> itemGroup, "Create Gears");
+        // Register content.
         new GearsBlocks(REGISTRATE).register();
         new GearsTiles(REGISTRATE).register();
 
-        OneTimeEventReceiver.addListener(MOD_EVENT_BUS, FMLClientSetupEvent.class, (event) -> {
-            event.enqueueWork(GearsPonder::register);
+        // Register the Ponder plugin on client setup.
+        modBus.addListener((FMLClientSetupEvent event) -> {
+            event.enqueueWork(() -> PonderIndex.addPlugin(new GearsPonder()));
         });
     }
 }
-

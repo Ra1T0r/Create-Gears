@@ -1,0 +1,45 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "MIT"
+
+[[mods]]
+modId = "creategears"
+version = "${mod_version}"
+displayName = "Create Gears"
+description = '''Shaftless gears for Create! A port of Create: Gears n' Kinetics to Create 6 / NeoForge 1.21.1.'''
+authors = "Ra1T0r"
+
+[[dependencies.creategears]]
+modId = "neoforge"
+type = "required"
+versionRange = "[${neoforge_version},)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.creategears]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,1.22)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.creategears]]
+modId = "create"
+type = "required"
+versionRange = "[6.0.0,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.creategears]]
+modId = "flywheel"
+type = "required"
+versionRange = "[1.0.0,2.0)"
+ordering = "AFTER"
+side = "CLIENT"
+
+[[dependencies.creategears]]
+modId = "ponder"
+type = "required"
+versionRange = "[1.0.0,2.0)"
+ordering = "AFTER"
+side = "CLIENT"

@@ -1,60 +1,36 @@
 package com.kotakotik.creategears.regitration;
 
-import com.simibubi.create.foundation.block.BlockStressValues;
-import com.simibubi.create.foundation.config.AllConfigs;
-import com.simibubi.create.repack.registrate.util.entry.BlockEntry;
-import com.simibubi.create.repack.registrate.util.nullness.NonNullUnaryOperator;
-import net.minecraft.block.Block;
-import net.minecraft.util.ResourceLocation;
+import com.simibubi.create.api.stress.BlockStressValues;
+import com.tterrag.registrate.builders.BlockBuilder;
+import com.tterrag.registrate.util.nullness.NonNullUnaryOperator;
+import net.minecraft.world.level.block.Block;
 
-import java.util.HashMap;
-import java.util.function.Supplier;
+/**
+ * Registers stress values (impact/capacity) for the addon's kinetic blocks.
+ *
+ * <p>In Create 6 the old IStressValueProvider mechanism is gone; stress values are
+ * registered straight into {@link BlockStressValues#IMPACTS} and
+ * {@link BlockStressValues#CAPACITIES}. Because the blocks are only bound during the
+ * registration event, we register them through a Registrate {@code .transform(...)}
+ * operator whose callback runs once the block instance exists.</p>
+ */
+public final class GearsStressProvider {
 
-public class GearsStressProvider implements BlockStressValues.IStressValueProvider {
-    protected static HashMap<ResourceLocation, Supplier<Double>> CAPACITIES = new HashMap<>();
-    protected static HashMap<ResourceLocation, Supplier<Double>> IMPACTS = new HashMap<>();
+    private GearsStressProvider() {}
 
-    public static <B extends Block, P> NonNullUnaryOperator<com.simibubi.create.repack.registrate.builders.BlockBuilder<B, P>> registerCapacityCopying(BlockEntry<? extends Block> toCopy) {
-        return registerCapacityCopying(toCopy.getId(), toCopy);
-    }
-
-    public static <B extends Block, P> NonNullUnaryOperator<com.simibubi.create.repack.registrate.builders.BlockBuilder<B, P>>
-    registerCapacityCopying(ResourceLocation id, Supplier<? extends Block> sup) {
-        return b -> {
-            CAPACITIES.put(id, () -> AllConfigs.SERVER.kinetics.stressValues.getCapacity(sup.get()));
-            return b;
+    /**
+     * Registers fixed stress values for a block.
+     *
+     * @param impact   stress units consumed at 1 RPM (0 for pure relays)
+     * @param capacity stress units that can be generated (0 if not a source)
+     */
+    public static <B extends Block, P> NonNullUnaryOperator<BlockBuilder<B, P>> fixed(double impact, double capacity) {
+        return builder -> {
+            builder.onRegister(block -> {
+                BlockStressValues.IMPACTS.register(block, () -> impact);
+                BlockStressValues.CAPACITIES.register(block, () -> capacity);
+            });
+            return builder;
         };
-    }
-
-    public static <B extends Block, P> NonNullUnaryOperator<com.simibubi.create.repack.registrate.builders.BlockBuilder<B, P>> registerImpactCopying(BlockEntry<? extends Block> toCopy) {
-        return registerImpactCopying(toCopy.getId(), toCopy);
-    }
-
-    public static <B extends Block, P> NonNullUnaryOperator<com.simibubi.create.repack.registrate.builders.BlockBuilder<B, P>>
-    registerImpactCopying(ResourceLocation id, Supplier<? extends Block> sup) {
-        return b -> {
-            IMPACTS.put(id, () -> AllConfigs.SERVER.kinetics.stressValues.getImpact(sup.get()));
-            return b;
-        };
-    }
-
-    @Override
-    public double getImpact(Block block) {
-        return IMPACTS.getOrDefault(block.getRegistryName(), () -> 0d).get();
-    }
-
-    @Override
-    public double getCapacity(Block block) {
-        return CAPACITIES.getOrDefault(block.getRegistryName(), () -> 0d).get();
-    }
-
-    @Override
-    public boolean hasImpact(Block block) {
-        return IMPACTS.containsKey(block.getRegistryName());
-    }
-
-    @Override
-    public boolean hasCapacity(Block block) {
-        return CAPACITIES.containsKey(block.getRegistryName());
     }
 }
