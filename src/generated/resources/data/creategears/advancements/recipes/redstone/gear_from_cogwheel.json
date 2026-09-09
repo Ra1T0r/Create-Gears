@@ -5,7 +5,9 @@
       "conditions": {
         "items": [
           {
-            "items": "create:large_cogwheel"
+            "items": [
+              "create:cogwheel"
+            ]
           }
         ]
       },
@@ -13,20 +15,21 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "creategears:large_gear_from_cogwheel"
+        "recipe": "creategears:gear_from_cogwheel"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_the_recipe",
-      "has_cogwheel"
+      "has_cogwheel",
+      "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "creategears:large_gear_from_cogwheel"
+      "creategears:gear_from_cogwheel"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

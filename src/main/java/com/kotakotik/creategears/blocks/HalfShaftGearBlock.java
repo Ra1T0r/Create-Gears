@@ -1,7 +1,7 @@
 package com.kotakotik.creategears.blocks;
 
 import com.kotakotik.creategears.util.ShapeUtils;
-import net.createmod.catnip.math.VoxelShaper;
+import com.simibubi.create.foundation.utility.VoxelShaper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;

@@ -2,20 +2,18 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "a": {
-      "item": "minecraft:andesite"
-    },
     "w": {
       "tag": "minecraft:buttons"
     }
   },
   "pattern": [
     "www",
-    "waw",
+    "w w",
     "www"
   ],
   "result": {
     "count": 8,
-    "id": "creategears:half_shaft_gear"
-  }
+    "item": "creategears:gear"
+  },
+  "show_notification": true
 }

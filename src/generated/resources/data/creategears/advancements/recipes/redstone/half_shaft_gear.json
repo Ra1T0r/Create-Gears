@@ -1,11 +1,13 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_large_cogwheels": {
+    "has_cogwheels": {
       "conditions": {
         "items": [
           {
-            "items": "create:large_cogwheel"
+            "items": [
+              "create:cogwheel"
+            ]
           }
         ]
       },
@@ -13,20 +15,21 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "creategears:large_gear"
+        "recipe": "creategears:half_shaft_gear"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_the_recipe",
-      "has_large_cogwheels"
+      "has_cogwheels",
+      "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "creategears:large_gear"
+      "creategears:half_shaft_gear"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

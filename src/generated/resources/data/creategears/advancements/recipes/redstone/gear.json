@@ -1,11 +1,13 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_cogwheel": {
+    "has_cogwheels": {
       "conditions": {
         "items": [
           {
-            "items": "create:cogwheel"
+            "items": [
+              "create:cogwheel"
+            ]
           }
         ]
       },
@@ -13,20 +15,21 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "creategears:gear_from_cogwheel"
+        "recipe": "creategears:gear"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_the_recipe",
-      "has_cogwheel"
+      "has_cogwheels",
+      "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "creategears:gear_from_cogwheel"
+      "creategears:gear"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

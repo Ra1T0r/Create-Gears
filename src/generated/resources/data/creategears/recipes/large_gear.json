@@ -2,17 +2,21 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "w": {
+    "b": {
       "tag": "minecraft:buttons"
+    },
+    "w": {
+      "tag": "minecraft:planks"
     }
   },
   "pattern": [
-    "www",
+    "bwb",
     "w w",
-    "www"
+    "bwb"
   ],
   "result": {
-    "count": 8,
-    "id": "creategears:gear"
-  }
+    "count": 2,
+    "item": "creategears:large_gear"
+  },
+  "show_notification": true
 }

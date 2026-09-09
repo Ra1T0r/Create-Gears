@@ -1,6 +1,6 @@
 plugins {
     id 'java-library'
-    id 'net.neoforged.moddev' version '1.0.23'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
     id 'idea'
 }
 
@@ -22,8 +22,14 @@ repositories {
     mavenLocal()
 
     maven {
-        name = 'NeoForged'
-        url = 'https://maven.neoforged.net/releases'
+        name = 'MinecraftForge'
+        url = 'https://maven.minecraftforge.net/'
+    }
+
+    maven {
+        // Create, Registrate, and Flywheel (Forge 1.20.1)
+        name = 'ModMaven'
+        url = 'https://modmaven.dev'
     }
 
     maven {
@@ -32,58 +38,62 @@ repositories {
     }
 
     maven {
-        // Flywheel, Create, Ponder (maven.createmod.net)
         name = 'Create'
         url = 'https://maven.createmod.net'
-    }
-
-    maven {
-        // Create and Ponder on a secondary mirror
-        name = 'ModMaven'
-        url = 'https://modmaven.dev'
-    }
-
-    maven {
-        // Registrate (and assorted Create libs)
-        name = 'Ithundxr'
-        url = 'https://maven.ithundxr.dev/mirror'
-    }
-
-    maven {
-        name = 'IthundxrSnapshots'
-        url = 'https://maven.ithundxr.dev/snapshots'
-    }
-
-    maven {
-        name = 'JitPack'
-        url = 'https://jitpack.io'
     }
 
     mavenCentral()
 }
 
-neoForge {
-    version = neoforge_version
+minecraft {
+    mappings channel: mappings_channel, version: mappings_version
 
     runs {
         client {
-            client()
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'info'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
+            mods {
+                creategears {
+                    source sourceSets.main
+                }
+            }
         }
 
         server {
-            server()
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.group
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'info'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
+            mods {
+                creategears {
+                    source sourceSets.main
+                }
+            }
         }
 
         data {
-            data()
-            programArguments.addAll '--mod', 'creategears', '--all', '--output', file('src/generated/resources').getAbsolutePath(), '--existing', file('src/main/resources').getAbsolutePath()
-        }
-    }
+            workingDirectory project.file('run')
 
-    mods {
-        creategears {
-            sourceSet sourceSets.main
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'info'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
+            args '--mod', 'creategears', '--all', '--output', file('src/generated/resources').getAbsolutePath(), '--existing', file('src/main/resources').getAbsolutePath()
+
+            mods {
+                creategears {
+                    source sourceSets.main
+                }
+            }
         }
     }
 }
@@ -94,28 +104,22 @@ configurations {
 }
 
 dependencies {
-    implementation "net.neoforged:neoforge:${neoforge_version}"
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    // Create (NeoForge, slim). We keep most of Create's transitive deps (notably its
-    // bundled libraries like catnip), but exclude the runtime-only companion mods whose
-    // artifacts we don't want pulled in (they were previously unresolvable at datagen).
-    implementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") {
-        exclude group: "dev.ftb.mods"
-        exclude group: "maven.modrinth"
-        exclude group: "dev.architectury"
-    }
+    // Create (Forge 1.20.1). Use the :slim artifact with transitive=false: Create's published
+    // artifact is a classifier'd slim jar whose POM is an aggregator (packaging=pom) listing
+    // registrate/flywheel/jei/curios/cc-tweaked as runtime deps. ForgeGradle 6 tries to deobf-map
+    // each of those too (breaking on unresolvable cc.tweaked etc.); transitive=false cuts that off.
+    // This matches Create's official wiki and Create addons (see Create-Delight-Core).
+    implementation(fg.deobf("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false })
 
-    // Registrate (Create's registration library, standalone on NeoForge)
-    implementation "com.tterrag.registrate:Registrate:${registrate_version}"
+    // Registrate (Create's registration library). The source imports com.tterrag.registrate.*
+    // directly, so it must be on the compile classpath (transitive=false does not provide it).
+    implementation fg.deobf("com.tterrag.registrate:Registrate:${registrate_version}")
 
-    // Ponder is a hard dependency of Create's kinetic block entities (VirtualBlockEntity,
-    // catnip utilities). We keep the library but deliberately do NOT register any Ponder
-    // scenes/stories for our own blocks, so the W "behind the scenes" tutorials are gone.
-    implementation "net.createmod.ponder:Ponder-NeoForge-${minecraft_version}:${ponder_version}"
-
-    // Flywheel (Create's rendering engine) - compile against the API, bundle the full lib at runtime
-    compileOnly "dev.engine-room.flywheel:flywheel-neoforge-api-${minecraft_version}:${flywheel_version}"
-    runtimeOnly "dev.engine-room.flywheel:flywheel-neoforge-${minecraft_version}:${flywheel_version}"
+    // Flywheel (Create's rendering engine). 0.5.1 uses Flywheel 0.6.x (com.jozufozu).
+    compileOnly fg.deobf("com.jozufozu.flywheel:flywheel-forge-${minecraft_version}:${flywheel_version}")
+    runtimeOnly fg.deobf("com.jozufozu.flywheel:flywheel-forge-${minecraft_version}:${flywheel_version}")
 }
 
 // Copy resources generated by data generators into the main source set
@@ -128,15 +132,15 @@ processResources {
     var replaceProperties = [
             'mod_version'    : mod_version,
             'minecraft_version': minecraft_version,
-            'neoforge_version': neoforge_version,
+            'forge_version'  : forge_version,
             'create_version' : create_version,
             'mod_id'         : 'creategears',
             'mod_name'       : 'Create Gears',
             'mod_authors'    : 'Ra1T0r',
-            'description'    : 'Shaftless gears for Create! A port of Create: Gears n\' Kinetics to Create 6 / NeoForge 1.21.1.'
+            'description'    : 'Shaftless gears for Create! A port of Create: Gears n\' Kinetics to Create 0.5.1 / Forge 1.20.1.'
     ]
     inputs.properties replaceProperties
-    filesMatching('META-INF/neoforge.mods.toml') {
+    filesMatching('META-INF/mods.toml') {
         expand replaceProperties
     }
 }

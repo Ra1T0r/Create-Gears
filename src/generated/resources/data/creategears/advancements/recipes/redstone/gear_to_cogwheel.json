@@ -5,7 +5,9 @@
       "conditions": {
         "items": [
           {
-            "items": "creategears:gear"
+            "items": [
+              "creategears:gear"
+            ]
           }
         ]
       },
@@ -20,13 +22,14 @@
   },
   "requirements": [
     [
-      "has_the_recipe",
-      "has_gear"
+      "has_gear",
+      "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
       "creategears:gear_to_cogwheel"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

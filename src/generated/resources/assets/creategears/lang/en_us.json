@@ -2,6 +2,5 @@
   "block.creategears.gear": "Gear",
   "block.creategears.half_shaft_gear": "Half Shaft Gear",
   "block.creategears.large_gear": "Large Gear",
-  "block.creategears.large_half_shaft_gear": "Large Half Shaft Gear",
-  "itemGroup.creategears": "Create Gears"
+  "block.creategears.large_half_shaft_gear": "Large Half Shaft Gear"
 }

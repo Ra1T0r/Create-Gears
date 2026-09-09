@@ -22,7 +22,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
+import net.minecraftforge.client.model.generators.ConfiguredModel;
 
 import static com.simibubi.create.foundation.data.TagGen.axeOrPickaxe;
 
@@ -42,7 +42,6 @@ public class GearsBlocks extends Registration {
                 .initialProperties(SharedProperties::stone)
                 .properties(p -> p.noOcclusion())
                 .transform(axeOrPickaxe())
-                .transform(GearsStressProvider.fixed(0.0, 0.0))
                 .blockstate(BlockStateGen.axisBlockProvider(false))
                 .onRegister(CreateRegistrate.blockModel(() -> BracketedKineticBlockModel::new))
                 .item(CogwheelBlockItem::new)
@@ -66,7 +65,6 @@ public class GearsBlocks extends Registration {
                 .initialProperties(SharedProperties::stone)
                 .properties(p -> p.noOcclusion())
                 .transform(axeOrPickaxe())
-                .transform(GearsStressProvider.fixed(0.0, 0.0))
                 .blockstate(BlockStateGen.axisBlockProvider(false))
                 .onRegister(CreateRegistrate.blockModel(() -> BracketedKineticBlockModel::new))
                 .item(CogwheelBlockItem::new)
@@ -91,7 +89,6 @@ public class GearsBlocks extends Registration {
                 .initialProperties(SharedProperties::stone)
                 .properties(p -> p.noOcclusion())
                 .transform(axeOrPickaxe())
-                .transform(GearsStressProvider.fixed(0.0, 0.0))
                 .blockstate(GearsBlocks::halfShaftGearState)
                 .onRegister(CreateRegistrate.blockModel(() -> BracketedKineticBlockModel::new))
                 .item(CogwheelBlockItem::new)
@@ -113,7 +110,6 @@ public class GearsBlocks extends Registration {
                 .initialProperties(SharedProperties::stone)
                 .properties(p -> p.noOcclusion())
                 .transform(axeOrPickaxe())
-                .transform(GearsStressProvider.fixed(0.0, 0.0))
                 .blockstate(GearsBlocks::halfShaftGearState)
                 .onRegister(CreateRegistrate.blockModel(() -> BracketedKineticBlockModel::new))
                 .item(CogwheelBlockItem::new)
@@ -134,7 +130,7 @@ public class GearsBlocks extends Registration {
     }
 
     private static ResourceLocation modLoc(String path) {
-        return ResourceLocation.fromNamespaceAndPath(Gears.MODID, path);
+        return new ResourceLocation(Gears.MODID, path);
     }
 
     public static void halfShaftGearState(DataGenContext<Block, HalfShaftGearBlock> ctx, RegistrateBlockstateProvider prov) {

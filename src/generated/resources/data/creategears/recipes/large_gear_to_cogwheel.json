@@ -10,7 +10,6 @@
     }
   ],
   "result": {
-    "count": 1,
-    "id": "create:large_cogwheel"
+    "item": "create:large_cogwheel"
   }
 }

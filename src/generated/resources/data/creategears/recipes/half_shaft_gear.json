@@ -5,20 +5,18 @@
     "a": {
       "item": "minecraft:andesite"
     },
-    "b": {
-      "tag": "minecraft:buttons"
-    },
     "w": {
-      "tag": "minecraft:planks"
+      "tag": "minecraft:buttons"
     }
   },
   "pattern": [
-    "bwb",
+    "www",
     "waw",
-    "bwb"
+    "www"
   ],
   "result": {
-    "count": 2,
-    "id": "creategears:large_half_shaft_gear"
-  }
+    "count": 8,
+    "item": "creategears:half_shaft_gear"
+  },
+  "show_notification": true
 }
